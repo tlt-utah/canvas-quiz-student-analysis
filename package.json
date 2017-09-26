@@ -1,0 +1,19 @@
+{
+  "name": "canvas-quiz-student-analysis",
+  "version": "1.0.0",
+  "description": "canvas quiz student analysis ETL project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "canvas",
+    "quiz",
+    "analysis"
+  ],
+  "author": "Jihoon Yoo",
+  "license": "ISC",
+  "dependencies": {
+    "csv": "^1.1.1"
+  }
+}
