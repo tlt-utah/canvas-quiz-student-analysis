@@ -14,10 +14,9 @@ var parser = parse({
     if (index == 0) {
 
       for (var i = 9; i < 69; i += 2) {
-        var question_id = datum[i].substring(0, datum[i].indexOf(':'));
-        questions.push(question_id);
+        canvas_quiz_question_ids.push(datum[i].split('\n')[0]);
+        unique_question_ids.push(datum[i].split('\n')[1]);
       }
-      console.log('questions:', questions.length);
 
     } else {
 
@@ -34,7 +33,7 @@ var parser = parse({
       var n_incorrect = datum[70];
       var score = datum[71];
 
-        // index 9 ~ 68 (30 questions), {'question', 'possible score'} ...
+      // index 9 ~ 68 (30 questions), {'question', 'possible score'} ...
       for (var i = 9; i < 69; i += 2) {
         var responses = datum[i].split(',').map(function(response) {
           return response.substring(0, response.indexOf(':'));
@@ -42,20 +41,33 @@ var parser = parse({
 
         // console.log(questions[(i - 9) / 2], '>>>', responses);
         wstream.write('\n');
+        var question_idx = (i - 9) / 2;
         responses.forEach(function(response, index) {
-          var record = [canvas_user_id, questions[(i - 9) / 2], index + 1, response].join();
+          var record = [canvas_user_id, canvas_quiz_question_ids[question_idx],
+            unique_question_ids[question_idx], index + 1, response
+          ].join();
           wstream.write(record + '\n');
           // console.log(record);
         })
       }
-    };
+    }
   });
+
   wstream.end();
 });
 
-var questions = [];
-var wstream = fs.createWriteStream('final-report.csv');
+var canvas_quiz_question_ids = [];
+var unique_question_ids = [];
+var wstream;
 
-wstream.write(['canvas_user_id', 'canvas_quiz_question_id', 'quetion_number', 'user_response'].join() + '\n');
+if (process.argv.length == 3) {
 
-fs.createReadStream('SOM SJT Assessment Exam Quiz Student Analysis Report.csv').pipe(parser);
+  wstream = fs.createWriteStream('final-report.csv');
+  wstream.write(['canvas_user_id', 'canvas_quiz_question_id', 'unique_question_id', 'question_number', 'user_response'].join() + '\n');
+
+  var input_file = process.argv[2];
+  fs.createReadStream(input_file).pipe(parser);
+
+} else {
+  console.log('Usage: node index.js {input_file.csv}');
+}
